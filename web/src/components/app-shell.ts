@@ -20,19 +20,19 @@ export function createAppShell(
 } {
     const shell = el("div", { className: "is-app-shell" });
 
-    const skipLink = el("a", { className: "skip-link", href: "#settings-main" }, "Skip to content");
+    const skipLink = el("a", { className: "skip-link", href: "#settings-main" }, "跳到主要内容");
 
     const titleId = "app-title";
-    const title = el("h1", { className: "app-title", id: titleId }, "Intro Skipper Configuration");
+    const title = el("h1", { className: "app-title", id: titleId }, "Intro Skipper 设置");
 
     const header = el("header", { className: "app-header", "aria-labelledby": titleId });
     header.append(title);
 
-    const sidebar = el("nav", { className: "app-sidebar", "aria-label": "Settings Sections" });
+    const sidebar = el("nav", { className: "app-sidebar", "aria-label": "设置分区" });
 
     const content = el("main", { className: "app-content", id: "settings-main", tabindex: "-1" });
 
-    const footer = el("footer", { className: "app-footer", "aria-label": "Save controls" });
+    const footer = el("footer", { className: "app-footer", "aria-label": "保存操作" });
 
     const footerStatus = el("span", { className: "footer-status-message" });
     const status = bindStatusMessage(footerStatus);
@@ -40,13 +40,13 @@ export function createAppShell(
     const dirtyIndicator = el(
         "span",
         { className: "dirty-indicator", "aria-live": "polite" },
-        "Unsaved changes",
+        "有未保存的更改",
     );
 
     const saveButton = el(
         "button",
-        { className: "save-button", type: "button", "aria-label": "Save configuration" },
-        "Save",
+        { className: "save-button", type: "button", "aria-label": "保存配置" },
+        "保存",
     );
 
     footer.append(footerStatus, dirtyIndicator, saveButton);
@@ -76,18 +76,18 @@ export function createAppShell(
         if (saveButton.disabled) return;
 
         saveButton.disabled = true;
-        saveButton.textContent = "Saving…";
-        setStatus("Saving…");
+        saveButton.textContent = "正在保存…";
+        setStatus("正在保存…");
 
         try {
             await configStore.save();
-            setStatus("Changes saved", "success");
+            setStatus("更改已保存", "success");
         } catch {
-            setStatus("Save failed", "error");
-            window.Dashboard.alert("Failed to save configuration");
+            setStatus("保存失败", "error");
+            window.Dashboard.alert("保存配置失败");
         } finally {
             saveButton.disabled = false;
-            saveButton.textContent = "Save";
+            saveButton.textContent = "保存";
         }
     };
 
@@ -96,7 +96,7 @@ export function createAppShell(
         // Let the user save through warnings after an explicit confirmation.
         if (
             errors.size === 0 ||
-            (await confirmDashboard("There are validation warnings. Save anyway?", "Validation"))
+            (await confirmDashboard("存在校验警告，仍要保存吗？", "校验提示"))
         ) {
             await runSave();
         }

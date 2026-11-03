@@ -20,8 +20,8 @@ type ConfirmDialogOptions<K extends string> = {
  * checked by default, which keeps the full reset the API defaults to.
  */
 export const eraseCheckboxes = {
-    eraseCache: { label: "Include cached fingerprints" },
-    eraseTombstones: { label: "Let deleted segments be detected again", checked: true },
+    eraseCache: { label: "同时清除缓存的音频指纹" },
+    eraseTombstones: { label: "允许重新检测已删除的片段", checked: true },
 } as const satisfies Record<keyof EraseOptions, CheckboxSpec>;
 
 let dialogCounter = 0;
@@ -81,12 +81,12 @@ export function confirmDialog<K extends string = never>(
         const cancelBtn = el(
             "button",
             { className: "is-confirm-btn cancel", type: "button" },
-            opts.cancelLabel ?? "Cancel",
+            opts.cancelLabel ?? "取消",
         );
         const confirmBtn = el(
             "button",
             { className: "is-confirm-btn confirm", type: "button" },
-            opts.confirmLabel ?? "Confirm",
+            opts.confirmLabel ?? "确认",
         );
 
         const actions = el("div", { className: "is-confirm-actions" });

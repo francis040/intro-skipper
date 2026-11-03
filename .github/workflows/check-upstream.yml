@@ -1,0 +1,25 @@
+# This check reports upstream changes; it never merges or publishes them.
+name: Check upstream release
+on:
+  schedule:
+    - cron: '20 2 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compare official stable release with localization base
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BASE=$(python3 -c 'import json; print(json.load(open("localization-base.json"))["upstreamTag"])')
+          LATEST=$(gh api repos/intro-skipper/intro-skipper/releases --jq '[.[] | select(.draft == false and .prerelease == false and (.tag_name | startswith("12.0/v")))][0].tag_name')
+          echo "Localization base: $BASE" >> "$GITHUB_STEP_SUMMARY"
+          echo "Latest upstream release: $LATEST" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$BASE" != "$LATEST" ]; then
+            echo '::error::A new upstream stable release needs manual source, compatibility and translation review.'
+            exit 1
+          fi

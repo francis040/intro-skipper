@@ -5,12 +5,12 @@ import { patternField } from "../components/pattern-field.ts";
 
 export const tracksTab: Tab = {
     id: "tracks",
-    label: "Tracks",
+    label: "音轨",
     render(container, signal) {
         const form = configForm(signal);
 
         container.append(
-            el("h3", { className: "tracks-section-divider" }, "Audio"),
+            el("h3", { className: "tracks-section-divider" }, "音频"),
             form.field("PreferredAudioLanguage"),
             form.field("PreferAudioStreamWithMostChannels"),
             form.field("ProbeAudioDuration"),

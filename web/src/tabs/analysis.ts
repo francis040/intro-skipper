@@ -18,16 +18,16 @@ function pairRow(
 
 export const analysisTab: Tab = {
     id: "analysis",
-    label: "Analysis",
+    label: "分析",
     render(container, signal) {
         const form = configForm(signal);
 
         const info = htmlEl(
             "div",
             { className: "field-description" },
-            "<p>The amount of each item's content that will be analyzed is determined using the percentage and maximum runtime. The minimum of (duration &times; percent, maximum runtime) is the amount that will be analyzed.</p>" +
-                "<p>If the percentage or maximum runtime settings are modified, the cached fingerprints and timestamps for each series, season, or movie you want to analyze with the modified settings <b>will have to be recreated</b>.</p>" +
-                "<p>Increasing either of the above settings will cause episode analysis to take much longer.</p>",
+            "<p>媒体分析范围由分析比例和最大时长共同决定，取“总时长 × 比例”和“最大分析时长”中的较小值。</p>" +
+                "<p>更改分析比例或最大时长后，若要使用新设置分析某部剧集、某季或电影，<b>必须重新生成</b>其缓存的音频指纹和时间戳。</p>" +
+                "<p>增大上述任一设置，都会明显延长分集分析时间。</p>",
         );
 
         const chaptersOff = () => configStore.get("FullLengthChapters") !== true;

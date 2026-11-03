@@ -34,7 +34,7 @@ export function breadcrumbNav(opts: BreadcrumbNavOptions): {
 } {
     const { signal } = opts;
     const container = el("div", { className: "ts-top-bar" });
-    const crumbsNav = el("nav", { className: "ts-breadcrumbs-nav", "aria-label": "Breadcrumb" });
+    const crumbsNav = el("nav", { className: "ts-breadcrumbs-nav", "aria-label": "导航路径" });
     const crumbsEl = el("ol", { className: "ts-breadcrumbs" });
     crumbsNav.append(crumbsEl);
 
@@ -44,9 +44,9 @@ export function breadcrumbNav(opts: BreadcrumbNavOptions): {
     const searchInput = el("input", {
         className: "ts-search-input",
         type: "search",
-        placeholder: "Search all shows\u2026",
+        placeholder: "搜索所有剧集…",
     });
-    searchInput.setAttribute("aria-label", "Search all shows");
+    searchInput.setAttribute("aria-label", "搜索所有剧集");
     searchInput.setAttribute("autocomplete", "off");
     searchInput.setAttribute("name", "show-search");
     searchInput.setAttribute("role", "combobox");
@@ -56,7 +56,7 @@ export function breadcrumbNav(opts: BreadcrumbNavOptions): {
     const resultsEl = el("div", { className: "ts-search-results" });
     resultsEl.id = "ts-show-search-results-" + String(++searchListCounter);
     resultsEl.setAttribute("role", "listbox");
-    resultsEl.setAttribute("aria-label", "Search results");
+    resultsEl.setAttribute("aria-label", "搜索结果");
     searchInput.setAttribute("aria-controls", resultsEl.id);
     searchInput.setAttribute("aria-expanded", "false");
 
@@ -177,7 +177,7 @@ export function breadcrumbNav(opts: BreadcrumbNavOptions): {
 
         if (matches.length === 0) {
             resultsEl.append(
-                el("div", { className: "ts-search-empty", role: "status" }, "No shows found."),
+                el("div", { className: "ts-search-empty", role: "status" }, "未找到剧集。"),
             );
             openResults();
             return;

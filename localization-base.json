@@ -1,0 +1,11 @@
+{
+  "upstreamRepository": "intro-skipper/intro-skipper",
+  "upstreamTag": "12.0/v12.0.6.0",
+  "upstreamCommit": "da3d8d50af3418ecd1ba80c58eefa48df5b5e2b4",
+  "upstreamAssemblyVersion": "12.0.6.0",
+  "upstreamSourceVersion": "12.0.5.0",
+  "targetAbi": "12.2.0.0",
+  "branch": "zh-CN-12.0",
+  "communityReference": "PaperLeisurely/Jellyfin.Plugin.IntroSkipper",
+  "communityCommit": "56e10e4eec562d00c5ded8eec700cbc40b25c6bb"
+}

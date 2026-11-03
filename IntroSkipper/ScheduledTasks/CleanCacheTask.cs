@@ -43,7 +43,7 @@ public partial class CleanCacheTask(
     /// <summary>
     /// Gets the task name.
     /// </summary>
-    public string Name => "Clean Intro Skipper Cache";
+    public string Name => "清理 Intro Skipper 缓存";
 
     /// <summary>
     /// Gets the task category.
@@ -53,7 +53,7 @@ public partial class CleanCacheTask(
     /// <summary>
     /// Gets the task description.
     /// </summary>
-    public string Description => "Clear Intro Skipper cache of unused rows.";
+    public string Description => "清除 Intro Skipper 缓存中不再使用的记录。";
 
     /// <summary>
     /// Gets the task key.

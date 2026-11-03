@@ -13,11 +13,11 @@ import type { SegmentDto, SegmentType } from "../types.ts";
  */
 
 export const MODE_OPTIONS: ReadonlyArray<{ value: SegmentType; label: string }> = [
-    { value: "Introduction", label: "Intro" },
-    { value: "Credits", label: "Credits" },
-    { value: "Recap", label: "Recap" },
-    { value: "Preview", label: "Preview" },
-    { value: "Commercial", label: "Commercial" },
+    { value: "Introduction", label: "片头" },
+    { value: "Credits", label: "片尾" },
+    { value: "Recap", label: "回顾" },
+    { value: "Preview", label: "预览" },
+    { value: "Commercial", label: "广告" },
 ];
 
 const MODE_ORDER: ReadonlyMap<string, number> = new Map(MODE_OPTIONS.map((m, i) => [m.value, i]));
@@ -25,21 +25,21 @@ const MODE_ORDER: ReadonlyMap<string, number> = new Map(MODE_OPTIONS.map((m, i) 
 export function sourceBadgeText(segment: SegmentDto): string {
     switch (segment.Source) {
         case "User":
-            return "user";
+            return "手动";
         case "Chapter":
-            return "chapter";
+            return "章节";
         case "Chromaprint":
-            return "audio";
+            return "音频";
         case "BlackFrame":
-            return "black frame";
+            return "黑帧";
         case "CreditsDerived":
-            return "derived";
+            return "派生";
         case "Combined":
-            return "combined";
+            return "合并";
         case "KeyframeVisuals":
-            return "card";
+            return "卡片";
         case "Subtitle":
-            return "subtitle";
+            return "字幕";
         default:
             return segment.Source.toLowerCase();
     }
@@ -59,11 +59,11 @@ function readRange(
     const start = parseTimeInput(startInput.value);
     const end = parseTimeInput(endInput.value);
     if (start === null || end === null) {
-        errorEl.textContent = "Enter a time like 95.5 or 1:35.5";
+        errorEl.textContent = "请输入时间，例如 95.5 或 1:35.5";
         return null;
     }
     if (end <= start) {
-        errorEl.textContent = "End must be after start";
+        errorEl.textContent = "结束时间必须晚于开始时间";
         return null;
     }
     errorEl.textContent = "";
@@ -127,7 +127,7 @@ export function segmentEditor(opts: {
             setStatus(successMessage + overlapWarning(segments, overlap), "success");
         } else {
             setStatus(
-                successMessage + " Reloading failed; showing the unverified local result.",
+                successMessage + " 重新加载失败，当前显示未经核实的本地结果。",
                 "error",
             );
         }
@@ -147,7 +147,7 @@ export function segmentEditor(opts: {
                 s.Start < overlap.end,
         );
         // Overlaps are legal in the plural model; surface them as a warning only.
-        return overlapping ? " Warning: overlaps another " + overlap.type + " segment." : "";
+        return overlapping ? " 警告：与另一个" + (MODE_OPTIONS.find((m) => m.value === overlap.type)?.label ?? overlap.type) + "片段重叠。" : "";
     }
 
     function buildRow(segment: SegmentDto): HTMLElement {
@@ -160,13 +160,13 @@ export function segmentEditor(opts: {
             type: "text",
             value: formatTimeInput(segment.Start),
         });
-        startInput.setAttribute("aria-label", label + " start");
+        startInput.setAttribute("aria-label", label + "开始时间");
         const endInput = el("input", {
             className: "ts-segment-input",
             type: "text",
             value: formatTimeInput(segment.End),
         });
-        endInput.setAttribute("aria-label", label + " end");
+        endInput.setAttribute("aria-label", label + "结束时间");
 
         const badge = el("span", { className: "ts-pill-source" }, sourceBadgeText(segment));
         const errorEl = el("span", { className: "ts-segment-error" });
@@ -174,14 +174,14 @@ export function segmentEditor(opts: {
         if (segment.Suppressed) {
             startInput.disabled = true;
             endInput.disabled = true;
-            const restoreBtn = el("button", { className: "ts-segment-btn", type: "button" }, "Restore");
+            const restoreBtn = el("button", { className: "ts-segment-btn", type: "button" }, "恢复");
             restoreBtn.addEventListener("click", () => withBusy(async () => {
                 const response = await api.restoreEpisodeSegment(opts.itemId, segment.Id, signal);
                 if (response.ok) {
                     const next = current.map((s) =>
                         s.Id === segment.Id ? { ...s, Suppressed: false } : s,
                     );
-                    await reloadAfterMutation("Segment restored.", next);
+                    await reloadAfterMutation("片段已恢复。", next);
                 } else {
                     setStatus(response.error, "error");
                 }
@@ -196,8 +196,8 @@ export function segmentEditor(opts: {
                 endInput.value !== formatTimeInput(segment.End),
         );
 
-        const saveBtn = el("button", { className: "ts-segment-btn", type: "button" }, "Save");
-        const deleteBtn = el("button", { className: "ts-segment-btn danger", type: "button" }, "Delete");
+        const saveBtn = el("button", { className: "ts-segment-btn", type: "button" }, "保存");
+        const deleteBtn = el("button", { className: "ts-segment-btn danger", type: "button" }, "删除");
 
         saveBtn.addEventListener("click", () => withBusy(async () => {
             const range = readRange(startInput, endInput, errorEl);
@@ -212,7 +212,7 @@ export function segmentEditor(opts: {
                 const next = current.map((s) =>
                     s.Id === segment.Id ? { ...s, Start: range.start, End: range.end } : s,
                 );
-                await reloadAfterMutation("Segment saved.", next, {
+                await reloadAfterMutation("片段已保存。", next, {
                     type: segment.Type,
                     start: range.start,
                     end: range.end,
@@ -227,11 +227,11 @@ export function segmentEditor(opts: {
             if (busy) return;
             const confirmed = await abortable(
                 confirmDialog({
-                    title: "Delete segment",
+                    title: "删除片段",
                     body: segment.Source === "User"
-                        ? "This permanently deletes the segment."
-                        : "This hides the automatically detected segment. Re-analysis will not re-add it.",
-                    confirmLabel: "Delete",
+                        ? "这将永久删除此片段。"
+                        : "这将隐藏自动检测到的片段，重新分析也不会再次添加。",
+                    confirmLabel: "删除",
                 }),
                 signal,
             );
@@ -244,7 +244,7 @@ export function segmentEditor(opts: {
                     const next = segment.Source === "User"
                         ? current.filter((s) => s.Id !== segment.Id)
                         : current.map((s) => (s.Id === segment.Id ? { ...s, Suppressed: true } : s));
-                    await reloadAfterMutation("Segment deleted.", next);
+                    await reloadAfterMutation("片段已删除。", next);
                 } else {
                     setStatus(result.error, "error");
                 }
@@ -262,14 +262,14 @@ export function segmentEditor(opts: {
         for (const mode of MODE_OPTIONS) {
             select.append(el("option", { value: mode.value }, mode.label));
         }
-        select.setAttribute("aria-label", "New segment type");
+        select.setAttribute("aria-label", "新片段类型");
 
         const startInput = el("input", { className: "ts-segment-input", type: "text", placeholder: "start" });
-        startInput.setAttribute("aria-label", "New segment start");
+        startInput.setAttribute("aria-label", "新片段开始时间");
         const endInput = el("input", { className: "ts-segment-input", type: "text", placeholder: "end" });
-        endInput.setAttribute("aria-label", "New segment end");
+        endInput.setAttribute("aria-label", "新片段结束时间");
         const errorEl = el("span", { className: "ts-segment-error" });
-        const addBtn = el("button", { className: "ts-segment-btn", type: "button" }, "Add");
+        const addBtn = el("button", { className: "ts-segment-btn", type: "button" }, "添加");
 
         dirtyChecks.push(() => startInput.value.trim() !== "" || endInput.value.trim() !== "");
 
@@ -287,7 +287,7 @@ export function segmentEditor(opts: {
                 // inputs) is rebuilt empty either way.
                 const created = result.data;
                 const next = created ? [...current, created] : current;
-                await reloadAfterMutation("Segment added.", next, {
+                await reloadAfterMutation("片段已添加。", next, {
                     type,
                     start: range.start,
                     end: range.end,

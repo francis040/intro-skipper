@@ -16,7 +16,7 @@ import { appendManageToggle } from "../components/manage-bar.ts";
 
 export const timestampsTab: Tab = {
     id: "timestamps",
-    label: "Timestamps",
+    label: "时间戳",
     render(container, signal) {
         createTimestampsBrowser(container, signal);
     },
@@ -40,7 +40,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
     const libraryCountEls = new Map<string, HTMLElement>();
 
     const nav = breadcrumbNav({
-        segments: [{ label: "All Libraries" }],
+        segments: [{ label: "所有媒体库" }],
         allShows: [],
         onSearchSelect: (show) => {
             void navigateToShow(show).catch(ignoreAbort);
@@ -123,10 +123,10 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
         try {
             const shows = await nav$.ensureLibraryShows(lib.Id, lib.Name);
             syncSearchIndex();
-            if (!view.aborted) setLibraryCount(lib.Id, pluralize(shows.length, "item"));
+            if (!view.aborted) setLibraryCount(lib.Id, pluralize(shows.length, "项", "项"));
         } catch (err) {
             if (isAbortError(err)) return;
-            if (!view.aborted) setLibraryCount(lib.Id, "Unavailable");
+            if (!view.aborted) setLibraryCount(lib.Id, "不可用");
         }
     }
 
@@ -146,7 +146,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
                 const countEl = el(
                     "span",
                     { className: "ts-episode-runtime" },
-                    "Loading items…",
+                    "正在加载项目…",
                 );
                 libraryCountEls.set(lib.Id, countEl);
 
@@ -165,7 +165,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
         } catch (err) {
             if (isAbortError(err)) throw err;
             contentEl.append(
-                statusLine("Failed to load libraries: " + errorText(err), "error"),
+                statusLine("加载媒体库失败：" + errorText(err), "error"),
             );
         } finally {
             nav$.hideDashboardLoading();
@@ -182,19 +182,19 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
         let libShows = nav$.getCachedShows(libraryId);
 
         if (!libShows) {
-            contentEl.append(statusLine("Loading shows…"));
+            contentEl.append(statusLine("正在加载剧集…"));
             nav$.showDashboardLoading();
             try {
                 libShows = await abortable(nav$.ensureLibraryShows(libraryId, libraryName), view);
-                setLibraryCount(libraryId, pluralize(libShows.length, "item"));
+                setLibraryCount(libraryId, pluralize(libShows.length, "项", "项"));
                 syncSearchIndex();
                 contentEl.replaceChildren();
             } catch (err) {
                 if (isAbortError(err)) throw err;
-                setLibraryCount(libraryId, "Unavailable");
+                setLibraryCount(libraryId, "不可用");
                 contentEl.replaceChildren();
                 contentEl.append(
-                    statusLine("Failed to load shows: " + errorText(err), "error"),
+                    statusLine("加载剧集失败：" + errorText(err), "error"),
                 );
                 return;
             } finally {
@@ -203,7 +203,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
         }
 
         if (libShows.length === 0) {
-            contentEl.append(statusLine("No shows found in this library."));
+            contentEl.append(statusLine("此媒体库中没有找到剧集。"));
             return;
         }
 
@@ -245,7 +245,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
             const seasons = await getSeasons(show.Id, view);
 
             if (seasons.length === 0) {
-                contentEl.append(statusLine("No seasons found."));
+                contentEl.append(statusLine("未找到季。"));
                 return;
             }
 
@@ -277,7 +277,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
         } catch (err) {
             if (isAbortError(err)) throw err;
             contentEl.append(
-                statusLine("Failed to load seasons: " + errorText(err), "error"),
+                statusLine("加载季失败：" + errorText(err), "error"),
             );
         } finally {
             nav$.hideDashboardLoading();
@@ -302,7 +302,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
 
         setPanelBusy(true);
         epList.clear();
-        epList.setStatus("Loading episodes…");
+        epList.setStatus("正在加载分集…");
         actions.toggle(false);
 
         nav$.showDashboardLoading();
@@ -314,7 +314,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
             );
 
             if (episodes.length === 0) {
-                epList.setStatus("No episodes found.");
+                epList.setStatus("未找到分集。");
                 return;
             }
 
@@ -326,12 +326,12 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
             });
             warnDisableStateUnknown(
                 disabledItemIds,
-                "Failed to load media-segment settings; the enable/disable toggles are hidden.",
+                "加载媒体片段设置失败，已隐藏启用／禁用开关。",
             );
             await actions.loadForSeason(show.Id, season.Id, false, panel, seriesSeasons);
         } catch (err) {
             if (isAbortError(err)) throw err;
-            epList.setStatus("Failed to load episodes: " + errorText(err), "error");
+            epList.setStatus("加载分集失败：" + errorText(err), "error");
         } finally {
             if (!panel.aborted) {
                 setPanelBusy(false);
@@ -345,7 +345,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
 
         setPanelBusy(true);
         epList.clear();
-        epList.setStatus("Loading timestamps…");
+        epList.setStatus("正在加载时间戳…");
         actions.toggle(false);
 
         nav$.showDashboardLoading();
@@ -373,12 +373,12 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
             });
             warnDisableStateUnknown(
                 disabledItemIds,
-                "Failed to load media-segment settings; the enable/disable toggle is hidden.",
+                "加载媒体片段设置失败，已隐藏启用／禁用开关。",
             );
             await actions.loadForSeason(show.Id, show.Id, true, panel);
         } catch (err) {
             if (isAbortError(err)) throw err;
-            epList.setStatus("Failed to load timestamps: " + errorText(err), "error");
+            epList.setStatus("加载时间戳失败：" + errorText(err), "error");
         } finally {
             if (!panel.aborted) {
                 setPanelBusy(false);
@@ -418,10 +418,10 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
     async function refreshUnlessEditing(): Promise<void> {
         if (epList.hasUnsavedEdits()) {
             epList.setStatus(
-                "Results changed on the server. An editor has unsaved changes.",
+                "服务器上的结果已更改，编辑器中仍有未保存的更改。",
                 "warning",
                 {
-                    label: "Refresh",
+                    label: "刷新",
                     onClick: () => {
                         void refreshEpisodes().catch(ignoreAbort);
                     },
@@ -451,7 +451,7 @@ function createTimestampsBrowser(container: HTMLElement, signal: AbortSignal): v
         const segments: BreadcrumbSegment[] = [];
 
         segments.push({
-            label: "All Libraries",
+            label: "所有媒体库",
             onClick:
                 state.view !== "libraries"
                     ? () => {

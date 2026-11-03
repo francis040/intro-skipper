@@ -45,7 +45,7 @@ export function exclusionListField(
     const addButton = el(
         "button",
         { className: "exclusion-add-button", type: "button" },
-        "Add",
+        "添加",
     );
     const inputRow = el("div", { className: "exclusion-input-row" });
     inputRow.append(input, addButton);
@@ -59,7 +59,7 @@ export function exclusionListField(
     });
 
     const list = el("ul", { className: "exclusion-list-values" });
-    const empty = el("div", { className: "exclusion-list-empty" }, "No entries");
+    const empty = el("div", { className: "exclusion-list-empty" }, "暂无条目");
     const describedByIds = [errorDiv.id];
 
     container.append(label, inputRow, errorDiv);
@@ -88,7 +88,7 @@ export function exclusionListField(
                 {
                     className: "exclusion-remove-button",
                     type: "button",
-                    "aria-label": "Remove " + value,
+                    "aria-label": "移除 " + value,
                 },
                 "×",
             );
@@ -107,13 +107,13 @@ export function exclusionListField(
     async function addCurrentValue(): Promise<void> {
         const value = input.value.trim();
         if (value.length === 0) {
-            showError("Enter a value before adding it.");
+            showError("请先输入要添加的内容。");
             return;
         }
 
         const values = readValues(id);
         if (hasEntry(values, value)) {
-            showError("This entry is already listed.");
+            showError("该条目已在列表中。");
             return;
         }
 
@@ -129,8 +129,8 @@ export function exclusionListField(
 
     function handleAdd(): void {
         addCurrentValue().catch((error: unknown) => {
-            console.error("Failed to add exclusion entry", error);
-            showError("Failed to add entry.");
+            console.error("添加排除项失败", error);
+            showError("添加条目失败。");
         });
     }
 
@@ -181,7 +181,7 @@ export function exclusionListField(
                         }
                     })
                     .catch((error: unknown) => {
-                        console.error("Failed to load exclusion suggestions", error);
+                        console.error("加载排除建议失败", error);
                     });
             },
             { once: true },

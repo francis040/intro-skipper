@@ -11,7 +11,7 @@ export function appendManageToggle(
 ): void {
     let open = false;
 
-    const btn = el("button", { className: "ts-manage-toggle", type: "button" }, "Manage");
+    const btn = el("button", { className: "ts-manage-toggle", type: "button" }, "管理");
     btn.setAttribute("aria-expanded", "false");
     if (opts.managePanelId) {
         btn.setAttribute("aria-controls", opts.managePanelId);

@@ -48,14 +48,14 @@ export function getLibraries(): Promise<LibraryInfo[]> {
         (result) => {
             if (!result.ok) {
                 librariesCache = undefined;
-                console.error("Failed to load libraries", result.error);
+                console.error("加载媒体库失败", result.error);
                 return [];
             }
             return (result.data?.Items ?? [])
                 .filter((item) => item.Id && isSupportedCollectionType(item.CollectionType))
                 .map((item) => ({
                     Id: item.Id!,
-                    Name: item.Name ?? "Unknown",
+                    Name: item.Name ?? "未知",
                     CollectionType: (item.CollectionType ?? null) as SupportedCollectionType,
                 }));
         },
@@ -85,14 +85,14 @@ export function getShowsInLibrary(libraryId: string, libraryName: string): Promi
     ).then((result) => {
         if (!result.ok) {
             showsByLibrary.delete(libraryId);
-            console.error("Failed to load shows for library", libraryId, result.error);
+            console.error("加载媒体库中的剧集失败", libraryId, result.error);
             return [];
         }
         return (result.data?.Items ?? [])
             .filter((item) => item.Id)
             .map((item) => ({
                 Id: item.Id!,
-                Name: item.Name ?? "Unknown",
+                Name: item.Name ?? "未知",
                 ProductionYear: item.ProductionYear ?? null,
                 Type: item.Type === "Movie" ? "Movie" : "Series",
                 LibraryId: libraryId,
@@ -118,14 +118,14 @@ export async function getSeasons(seriesId: string, signal?: AbortSignal): Promis
         signal,
     );
     if (!result.ok) {
-        console.error("Failed to load seasons for series", seriesId, result.error);
+        console.error("加载剧集的季列表失败", seriesId, result.error);
         return [];
     }
     return (result.data?.Items ?? [])
         .filter((item) => item.Id)
         .map((item) => ({
             Id: item.Id!,
-            Name: item.Name ?? "Unknown",
+            Name: item.Name ?? "未知",
             IndexNumber: item.IndexNumber ?? null,
         }));
 }
@@ -144,14 +144,14 @@ export async function getEpisodes(
         signal,
     );
     if (!result.ok) {
-        console.error("Failed to load episodes for series", seriesId, result.error);
+        console.error("加载剧集的分集失败", seriesId, result.error);
         return [];
     }
     return (result.data?.Items ?? [])
         .filter((item) => item.Id)
         .map((item) => ({
             Id: item.Id!,
-            Name: item.Name ?? "Unknown",
+            Name: item.Name ?? "未知",
             IndexNumber: item.IndexNumber ?? null,
             RunTimeTicks: item.RunTimeTicks ?? null,
             SeriesName: item.SeriesName ?? null,

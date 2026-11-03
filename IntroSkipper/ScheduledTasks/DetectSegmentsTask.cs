@@ -28,7 +28,7 @@ public partial class DetectSegmentsTask(
     /// <summary>
     /// Gets the task name.
     /// </summary>
-    public string Name => "Detect and Analyze Media Segments";
+    public string Name => "检测并分析媒体片段";
 
     /// <summary>
     /// Gets the task category.
@@ -38,7 +38,7 @@ public partial class DetectSegmentsTask(
     /// <summary>
     /// Gets the task description.
     /// </summary>
-    public string Description => "Analyzes media to determine the timestamp and length of intros and credits.";
+    public string Description => "分析媒体，确定片头和片尾的时间戳与时长。";
 
     /// <summary>
     /// Gets the task key.

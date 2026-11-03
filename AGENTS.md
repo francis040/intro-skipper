@@ -1,3 +1,16 @@
+# 汉化 Fork 维护规则
+
+适用共同规则：D:\Projects\AGENTS.md。开始本地维护时同时阅读该文件；仅提交本任务必要源码、文档和资源，排除凭据、真实数据、日志、缓存、备份和发布产物。完成必要验证后主动本地提交，只有当次用户明确授权时才推送。
+
+- 本仓库是 `francis040/intro-skipper` 的简体中文汉化 Fork，维护分支 `zh-CN-12.0`，官方远程名为 `upstream`，个人 Fork 为 `origin`。下方保留的上游说明中关于 origin／Issue 归属的描述不适用于本 Fork；不得向官方仓库推送或创建 Issue／PR。
+- 纯文字汉化：不更改 GUID、ProviderName、配置字段和默认值、数据库、检测算法、FFmpeg、API、枚举或权限。CSS 类、DOM ID、URL 和选项 value 必须保留。用户可见标题与实际传输值分别处理。
+- 构建前读 `localization-base.json`；不能根据 Tag 假设程序集或 targetAbi。执行 README 中的全部检查；官方全量测试不通过时不发布。
+- 发布只能使用个人 Fork 的 GITHUB_TOKEN。禁止照搬上游 PAT、签名及 manifest 派发。
+- 不连接 NAS、不安装插件、不更改生产 Jellyfin；NAS 部署需独立获得用户授权。
+- 本项目是 Jellyfin 内嵌网页，不创建桌面窗口；未修改布局或应用图标。未来如添加可调整大小的独立窗口或更换应用图标，须按共同规则落实最小尺寸、DPI 及实际图标验证。
+
+---
+
 # AGENTS.md
 
 intro-skipper: a Jellyfin plugin (C#, `net10.0`, Jellyfin 12 packages) that detects intro and credit scenes and mirrors them into Jellyfin's MediaSegments. It loads inside the Jellyfin server process; `PluginServiceRegistrator` wires everything into the server's DI container.

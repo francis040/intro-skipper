@@ -1,0 +1,12 @@
+[
+  {
+    "guid": "c83d86bb-a1e0-4c35-a113-e2101cf4ee6b",
+    "name": "Intro Skipper 简体中文汉化版",
+    "overview": "自动检测片头、片尾、回顾、预览与广告；配置界面简体中文汉化。",
+    "description": "基于官方 Intro Skipper 的非官方简体中文汉化 Fork。保留原插件 GUID、配置、数据库与检测逻辑。由 francis040 维护，未使用官方 SignPath 签名。",
+    "owner": "francis040；原作者：Intro Skipper contributors",
+    "category": "MoviesAndShows",
+    "imageUrl": "https://cdn.jsdelivr.net/gh/intro-skipper/manifest@a434e00edba70493794e25917cc8d3326d5a85c6/images/intro-skipper/logo.png",
+    "versions": []
+  }
+]

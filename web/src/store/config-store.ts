@@ -63,19 +63,19 @@ export const configStore = {
             takeSnapshot(config);
             emit("loaded");
         } catch (err) {
-            console.error("Failed to load plugin configuration", err);
-            window.Dashboard.alert("Failed to load configuration");
-            throw new Error("Failed to load plugin configuration");
+            console.error("加载插件配置失败", err);
+            window.Dashboard.alert("加载配置失败");
+            throw new Error("加载插件配置失败");
         }
     },
 
     get<K extends keyof PluginConfig>(field: K): PluginConfig[K] {
-        if (!config) throw new Error("Config not loaded");
+        if (!config) throw new Error("配置尚未加载");
         return config[field];
     },
 
     getAll(): PluginConfig {
-        if (!config) throw new Error("Config not loaded");
+        if (!config) throw new Error("配置尚未加载");
         return config;
     },
 
@@ -84,7 +84,7 @@ export const configStore = {
     },
 
     set<K extends ConfigKey>(field: K, value: PluginConfig[K]): void {
-        if (!config || !snapshot) throw new Error("Config not loaded");
+        if (!config || !snapshot) throw new Error("配置尚未加载");
 
         config[field] = value;
 
@@ -106,7 +106,7 @@ export const configStore = {
 
             // Keep the skip-button patch in sync, but do not block saving on it.
             void updateSkipDuration().then((result) => {
-                if (!result.ok) console.error("Failed to update skip duration", result.error);
+                if (!result.ok) console.error("更新跳过时长失败", result.error);
             });
 
             config = serverConfig;

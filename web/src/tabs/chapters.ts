@@ -4,7 +4,7 @@ import { patternField } from "../components/pattern-field.ts";
 
 export const chaptersTab: Tab = {
     id: "chapters",
-    label: "Chapters",
+    label: "章节",
     render(container, signal) {
         const form = configForm(signal);
 

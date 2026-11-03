@@ -4,7 +4,7 @@ import { configForm } from "../components/config-form.ts";
 
 export const detectionTab: Tab = {
     id: "detection",
-    label: "Detection",
+    label: "检测",
     render(container, signal) {
         const form = configForm(signal);
         const silenceVisible = () => configStore.get("AdjustIntroBasedOnSilence") === true;

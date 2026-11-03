@@ -13,7 +13,7 @@ function inheritedSubtitleDetection(key: "EnableSubtitleRecapDetection" | "Enabl
 // What the global setting currently is, shown where a blank override falls back to it.
 function globalValue(key: "AnalysisPercent" | "AnalysisLengthLimit"): () => string {
     return () =>
-        configStore.isLoaded() ? "Global: " + String(configStore.get(key)) : "Global default";
+        configStore.isLoaded() ? "全局：" + String(configStore.get(key)) : "全局默认值";
 }
 
 /**
@@ -23,8 +23,8 @@ function globalValue(key: "AnalysisPercent" | "AnalysisLengthLimit"): () => stri
 export const overrideSchema = {
     AnalysisPercent: {
         kind: "number",
-        label: "Percent of media to analyze",
-        description: "Percentage of each item's runtime.",
+        label: "媒体分析比例",
+        description: "占每个项目总时长的比例。",
         min: configSchema.AnalysisPercent.min,
         max: configSchema.AnalysisPercent.max,
         step: 1,
@@ -33,8 +33,8 @@ export const overrideSchema = {
     },
     AnalysisLengthLimit: {
         kind: "number",
-        label: "Maximum runtime to analyze (minutes)",
-        description: "Upper limit for each item.",
+        label: "最大分析时长（分钟）",
+        description: "每个项目的时长上限。",
         min: configSchema.AnalysisLengthLimit.min,
         step: 1,
         optional: true,
@@ -42,41 +42,41 @@ export const overrideSchema = {
     },
     PreviewFromCreditsEnd: {
         kind: "select",
-        label: "Set post-credits scene as preview",
+        label: "将片尾后的内容设为预览",
         description:
-            "Use the post-credits duration as a fallback preview when no other preview is detected.",
+            "未检测到其他预览时，将片尾后的内容作为备用预览片段。",
         options: [
             {
                 value: null,
                 label: () =>
                     configStore.isLoaded()
                         ? configStore.get("AnimePreviewFromCreditsEnd")
-                            ? "Global: Anime only"
-                            : "Global: Disabled"
-                        : "Global default",
+                            ? "全局：仅动漫"
+                            : "全局：已禁用"
+                        : "全局默认值",
             },
-            { value: true, label: "Enabled" },
-            { value: false, label: "Disabled" },
+            { value: true, label: "已启用" },
+            { value: false, label: "已禁用" },
         ],
     },
     SubtitleRecapDetection: {
         kind: "select",
-        label: "Subtitle-based recap detection",
-        description: "Enable subtitle-based recap detection for this season or show.",
+        label: "根据字幕检测回顾",
+        description: "为本季或本剧集启用字幕回顾检测。",
         nullDisplayValue: () => inheritedSubtitleDetection("EnableSubtitleRecapDetection"),
         options: [
-            { value: true, label: "Enabled" },
-            { value: false, label: "Disabled" },
+            { value: true, label: "已启用" },
+            { value: false, label: "已禁用" },
         ],
     },
     SubtitlePreviewDetection: {
         kind: "select",
-        label: "Subtitle-based preview detection",
-        description: "Enable subtitle-based preview detection for this season or show.",
+        label: "根据字幕检测预览",
+        description: "为本季或本剧集启用字幕预览检测。",
         nullDisplayValue: () => inheritedSubtitleDetection("EnableSubtitlePreviewDetection"),
         options: [
-            { value: true, label: "Enabled" },
-            { value: false, label: "Disabled" },
+            { value: true, label: "已启用" },
+            { value: false, label: "已禁用" },
         ],
     },
 } as const satisfies FieldSchema;

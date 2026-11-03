@@ -14,18 +14,26 @@ const ANALYZER_MODES: ReadonlyArray<{
     label: string;
     actions: readonly string[];
 }> = [
-    { key: "Recap", label: "Recap", actions: ["Default", "Chapter", "Chromaprint", "None"] },
-    { key: "Introduction", label: "Intro", actions: ["Default", "Chapter", "Chromaprint", "None"] },
+    { key: "Recap", label: "回顾", actions: ["Default", "Chapter", "Chromaprint", "None"] },
+    { key: "Introduction", label: "片头", actions: ["Default", "Chapter", "Chromaprint", "None"] },
     {
         key: "Credits",
-        label: "Credits",
+        label: "片尾",
         actions: ["Default", "Chapter", "Chromaprint", "BlackFrame", "None"],
     },
-    { key: "Preview", label: "Preview", actions: ["Default", "Chapter", "None"] },
-    { key: "Commercial", label: "Commercial", actions: ["Default", "Chapter", "None"] },
+    { key: "Preview", label: "预览", actions: ["Default", "Chapter", "None"] },
+    { key: "Commercial", label: "广告", actions: ["Default", "Chapter", "None"] },
 ];
 
 const SEGMENT_EDITOR_PLUGIN_ID = "ace21d44a4e54a85ae75acd2e24a9574";
+
+const ANALYZER_LABELS: Readonly<Record<string, string>> = {
+    Default: "默认",
+    Chapter: "章节",
+    Chromaprint: "Chromaprint",
+    BlackFrame: "黑帧",
+    None: "禁用",
+};
 
 // Whether the Segment Editor plugin is installed and active. Looked up once per
 // page lifetime; a failed lookup is not cached so the next action bar retries.
@@ -90,7 +98,7 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
             name: "analyzer-" + mode.key.toLowerCase(),
         });
         for (const action of mode.actions) {
-            select.append(el("option", { value: action }, action));
+            select.append(el("option", { value: action }, ANALYZER_LABELS[action] ?? action));
         }
         actionSelects.set(mode.key, select);
         item.append(labelEl);
@@ -103,11 +111,11 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
     const overrideForm = formFor(overrideSchema, overrides, signal);
 
     const analysisWindow = el("fieldset", { className: "ts-analysis-window" });
-    const analysisWindowLegend = el("legend", {}, "Season overrides");
+    const analysisWindowLegend = el("legend", {}, "单季覆盖设置");
     const analysisWindowDescription = el(
         "p",
         { className: "ts-action-description" },
-        "Optional per-season limits and detection settings. Blank fields and Global selections inherit the plugin settings.",
+        "可选的单季分析限制和检测设置。留空或选择全局选项时，沿用插件设置。",
     );
     const analysisWindowGrid = el("div", { className: "ts-analysis-window-grid" });
     analysisWindowGrid.append(
@@ -122,7 +130,7 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
     const resetWindowBtn = el(
         "button",
         { className: "ts-reset-overrides", type: "button" },
-        "Use global defaults",
+        "使用全局默认值",
     );
     resetWindowBtn.addEventListener(
         "click",
@@ -143,17 +151,17 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
     const applyBtn = el(
         "button",
         { className: "ts-action-btn apply", type: "button" },
-        "Save Overrides",
+        "保存覆盖设置",
     );
     const scanBtn = el(
         "button",
         { className: "ts-action-btn scan", type: "button" },
-        "Scan Season",
+        "扫描本季",
     );
     const eraseBtn = el(
         "button",
         { className: "ts-action-btn erase", type: "button" },
-        "Erase Season Timestamps",
+        "清除本季时间戳",
     );
 
     const fullSeriesId = "ts-full-series";
@@ -164,7 +172,7 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
     const fullSeriesLabel = el(
         "label",
         { className: "ts-full-series", for: fullSeriesId },
-        "Full Series",
+        "整部剧集",
     );
     fullSeriesLabel.prepend(fullSeriesCheckbox);
 
@@ -177,7 +185,7 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
             className: "ts-action-editor-link",
             href: "#/dashboard/plugins/" + SEGMENT_EDITOR_PLUGIN_ID + "?name=Segment Editor",
         },
-        "Segment Editor →",
+        "片段编辑器 →",
     );
 
     const topRow = el("div", { className: "ts-action-top-row" });
@@ -216,7 +224,7 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
     function updateApplyAvailability(): void {
         applyBtn.disabled = currentIsMovie || !overridesLoaded;
         if (!overridesLoaded && !currentIsMovie) {
-            applyBtn.title = "Analysis-window settings are still loading.";
+            applyBtn.title = "正在加载分析范围设置。";
         } else {
             applyBtn.removeAttribute("title");
         }
@@ -224,18 +232,18 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
 
     function updateActionLabels(): void {
         scopeHint.textContent = fullSeriesCheckbox.checked
-            ? "Every season in this series"
-            : "Current season only";
+            ? "此剧集的所有季"
+            : "仅当前季";
         scanBtn.textContent = currentIsMovie
-            ? "Scan Movie"
+            ? "扫描电影"
             : fullSeriesCheckbox.checked
-              ? "Scan Series"
-              : "Scan Season";
+              ? "扫描剧集"
+              : "扫描本季";
         eraseBtn.textContent = currentIsMovie
-            ? "Erase Movie Timestamps"
+            ? "清除电影时间戳"
             : fullSeriesCheckbox.checked
-              ? "Erase Series Timestamps"
-              : "Erase Season Timestamps";
+              ? "清除剧集时间戳"
+              : "清除本季时间戳";
     }
 
     function resetScanButton(): void {
@@ -271,14 +279,14 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
         }
         const values = overrides.values();
 
-        statusMessage.show("Saving overrides…");
+        statusMessage.show("正在保存覆盖设置…");
 
         try {
             await withDashboardLoading(async () => {
                 for (const seasonId of seasonIds) {
                     const response = await api.updateAnalyzerActions(seasonId, actions, operation);
                     if (!response.ok) {
-                        throw new Error("Failed to update analyzer overrides");
+                        throw new Error("更新分析器覆盖设置失败");
                     }
                     const windowResponse = await api.updateAnalysisOverrides(
                         seasonId,
@@ -286,14 +294,14 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
                         operation,
                     );
                     if (!windowResponse.ok) {
-                        throw new Error("Failed to update analysis window");
+                        throw new Error("更新分析范围失败");
                     }
                 }
             });
-            statusMessage.show("Overrides updated.", "success");
+            statusMessage.show("覆盖设置已更新。", "success");
         } catch (err) {
             if (isAbortError(err)) return;
-            statusMessage.show("Failed to update overrides.", "error");
+            statusMessage.show("更新覆盖设置失败。", "error");
         }
     }
 
@@ -331,13 +339,13 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
     async function finishScan(outcome: ScanOutcome): Promise<void> {
         resetScanButton();
         if (outcome === "unavailable") {
-            statusMessage.show("Scan status unavailable. Refresh to check results.", "warning");
+            statusMessage.show("无法获取扫描状态，请刷新查看结果。", "warning");
             return;
         }
         if (outcome === "failed") {
-            statusMessage.show("Scan failed. See the server log.", "error");
+            statusMessage.show("扫描失败，请查看服务器日志。", "error");
         } else {
-            statusMessage.show("Scan finished.", "success");
+            statusMessage.show("扫描已完成。", "success");
         }
         await Promise.resolve(onScanComplete());
     }
@@ -349,27 +357,27 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
         const showId = currentShowId;
         const seasonIds = targetSeasonIds();
         const isSeriesScan = !currentIsMovie && fullSeriesCheckbox.checked;
-        statusMessage.show("Starting scan…");
+        statusMessage.show("正在启动扫描…");
         try {
             for (let index = 0; index < seasonIds.length; index++) {
                 const progress = isSeriesScan
                     ? " (" + String(index + 1) + "/" + String(seasonIds.length) + ")"
                     : "";
-                statusMessage.show("Starting scan" + progress + "…");
+                statusMessage.show("正在启动扫描" + progress + "…");
                 const response = await withDashboardLoading(() =>
                     api.scanSeason(showId, seasonIds[index], scan),
                 );
 
                 if (!response.ok) {
                     resetScanButton();
-                    statusMessage.show("Unable to start the scan.", "error");
+                    statusMessage.show("无法启动扫描。", "error");
                     return;
                 }
 
-                scanBtn.textContent = "Scan in progress…";
+                scanBtn.textContent = "正在扫描…";
                 statusMessage.show(
-                    (isSeriesScan ? "Scanning series" + progress : "Scan queued") +
-                        "… This can take several minutes.",
+                    (isSeriesScan ? "正在扫描剧集" + progress : "扫描已加入队列") +
+                        "…这可能需要几分钟。",
                 );
 
                 const outcome = await awaitScan(seasonIds[index], scan);
@@ -383,20 +391,20 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
         } catch (err) {
             if (isAbortError(err)) return;
             resetScanButton();
-            statusMessage.show("Unable to start the scan.", "error");
+            statusMessage.show("无法启动扫描。", "error");
         }
     }
 
     async function eraseTimestamps(): Promise<void> {
         const isSeriesErase = !currentIsMovie && fullSeriesCheckbox.checked;
-        const label = currentIsMovie ? "movie" : isSeriesErase ? "series" : "season";
+        const label = currentIsMovie ? "电影" : isSeriesErase ? "剧集" : "季";
         const showId = currentShowId;
         const seasonIds = targetSeasonIds();
         const result = await abortable(
             confirmDialog({
-                title: "Confirm Timestamp Erasure",
-                body: "Are you sure you want to erase the detected timestamps for this " + label + "? User segments are kept.",
-                confirmLabel: "Erase",
+                title: "确认清除时间戳",
+                body: "确定要清除此" + label + "的已检测时间戳吗？用户手动创建的片段将保留。",
+                confirmLabel: "清除",
                 checkboxes: eraseCheckboxes,
             }),
             signal,
@@ -404,7 +412,7 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
         if (!result) return;
         eraseBtn.disabled = true;
         fullSeriesCheckbox.disabled = true;
-        statusMessage.show("Erasing timestamps…");
+        statusMessage.show("正在清除时间戳…");
         try {
             for (const seasonId of seasonIds) {
                 const response = await api.eraseSeasonTimestamps(showId, seasonId, result, signal);
@@ -413,15 +421,15 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
                     // season erase endpoint reports those as 404, which is a
                     // successful no-op for a full-series erase.
                     if (isSeriesErase && response.status === 404) continue;
-                    statusMessage.show("Failed to erase timestamps.", "error");
+                    statusMessage.show("清除时间戳失败。", "error");
                     return;
                 }
             }
-            statusMessage.show("Timestamps erased.", "success");
+            statusMessage.show("时间戳已清除。", "success");
             await Promise.resolve(onScanComplete());
         } catch (err) {
             if (isAbortError(err)) return;
-            statusMessage.show("Failed to erase timestamps.", "error");
+            statusMessage.show("清除时间戳失败。", "error");
         } finally {
             eraseBtn.disabled = false;
             fullSeriesCheckbox.disabled = false;
@@ -524,13 +532,13 @@ export function actionBar({ onScanComplete, signal }: ActionBarOptions): {
                 // is done. Not awaited: the caller must not wait out the scan.
                 scanBtn.disabled = true;
                 fullSeriesCheckbox.disabled = true;
-                scanBtn.textContent = "Scan in progress…";
-                statusMessage.show("Scan in progress… This can take several minutes.");
+                scanBtn.textContent = "正在扫描…";
+                statusMessage.show("正在扫描…这可能需要几分钟。");
                 void awaitScan(seasonId, startScan()).then(finishScan).catch(ignoreAbort);
             } else if (status.data.isRunning) {
                 // Another pass is running. It does not block a scan of this season: the
                 // queue runs it once the pass ends, so the button stays enabled.
-                statusMessage.show("Scan in progress… A new scan queues behind it.");
+                statusMessage.show("正在扫描…新扫描将排在其后。");
             }
         },
     };

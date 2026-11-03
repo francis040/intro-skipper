@@ -2,6 +2,7 @@ import type { SupportBundleEntry, SupportBundleSection, Tab } from "../types.ts"
 import * as api from "../store/api.ts";
 import { el } from "../components/dom.ts";
 import { bindStatusMessage } from "../components/async-feedback.ts";
+import { supportLabel, supportValue } from "../components/support-labels.ts";
 import { ignoreAbort } from "../lifecycle.ts";
 
 // Copies text to the clipboard. Dashboards served over plain HTTP have no
@@ -35,7 +36,7 @@ async function copyText(text: string): Promise<boolean> {
 function renderEntries(entries: SupportBundleEntry[]): HTMLElement {
     const grid = el("dl", { className: "support-grid" });
     for (const entry of entries) {
-        grid.append(el("dt", {}, entry.Label), el("dd", {}, entry.Value));
+        grid.append(el("dt", {}, supportLabel(entry.Label)), el("dd", {}, supportValue(entry.Value)));
     }
     return grid;
 }
@@ -47,16 +48,16 @@ function renderBody(section: SupportBundleSection): HTMLElement {
     const entries = section.Entries ?? [];
     return entries.length > 0
         ? renderEntries(entries)
-        : el("div", { className: "support-none" }, "None");
+        : el("div", { className: "support-none" }, "无");
 }
 
 function sizeHint(section: SupportBundleSection): string {
     if (typeof section.Text === "string") {
         const lines = section.Text.length === 0 ? 0 : section.Text.trimEnd().split("\n").length;
-        return lines === 1 ? "1 line" : `${lines} lines`;
+        return lines === 1 ? "1 行" : `${lines} 行`;
     }
     const count = section.Entries?.length ?? 0;
-    return count === 1 ? "1 item" : `${count} items`;
+    return count === 1 ? "1 项" : `${count} 项`;
 }
 
 // Visible sections get an uppercase label and their body; collapsed sections
@@ -68,17 +69,17 @@ function renderSections(sections: SupportBundleSection[]): HTMLElement[] {
     for (const section of sections) {
         if (!section.Collapsed) {
             const block = el("div", { className: "support-section" });
-            block.append(el("div", { className: "support-title" }, section.Title), renderBody(section));
+            block.append(el("div", { className: "support-title" }, supportLabel(section.Title)), renderBody(section));
             nodes.push(block);
             continue;
         }
 
         if (!foldsStarted) {
             foldsStarted = true;
-            nodes.push(el("div", { className: "support-title" }, "Details"));
+            nodes.push(el("div", { className: "support-title" }, "详细信息"));
         }
         const fold = el("details", { className: "support-fold" });
-        const summary = el("summary", {}, section.Title);
+        const summary = el("summary", {}, supportLabel(section.Title));
         summary.append(el("span", { className: "support-fold-meta" }, sizeHint(section)));
         fold.append(summary, renderBody(section));
         nodes.push(fold);
@@ -89,18 +90,18 @@ function renderSections(sections: SupportBundleSection[]): HTMLElement[] {
 
 export const informationTab: Tab = {
     id: "information",
-    label: "Information",
+    label: "信息",
     render(container, signal) {
         const supportContainer = el("section", { className: "tab-readonly-section" });
         const supportTitle = el(
             "h3",
             { className: "is-section-heading", id: "support-log-label" },
-            "Intro Skipper Support Log",
+            "Intro Skipper 支持日志",
         );
         const copyButtonEl = el(
             "button",
             { className: "action-button", type: "button" },
-            "Copy to Clipboard",
+            "复制到剪贴板",
         );
         copyButtonEl.disabled = true;
         const supportHead = el("div", { className: "support-head" });
@@ -121,7 +122,7 @@ export const informationTab: Tab = {
             if (await copyText(markdown)) {
                 manualCopyArea?.remove();
                 manualCopyArea = undefined;
-                window.Dashboard.alert("Support bundle copied to clipboard");
+                window.Dashboard.alert("支持包已复制到剪贴板");
                 return;
             }
             // No clipboard API and execCommand failed: show the Markdown selected in a
@@ -134,17 +135,17 @@ export const informationTab: Tab = {
             manualCopyArea.value = markdown;
             manualCopyArea.focus();
             manualCopyArea.setSelectionRange(0, markdown.length);
-            window.Dashboard.alert("Press Ctrl+C to copy support bundle");
+            window.Dashboard.alert("按 Ctrl+C 复制支持包");
         });
 
         async function loadSupportBundle(): Promise<void> {
-            supportStatus.show("Loading support log…");
+            supportStatus.show("正在加载支持日志…");
             const result = await api.getSupportBundle(signal);
             if (!result.ok) {
                 markdown = "";
                 supportSections.replaceChildren();
                 copyButtonEl.disabled = true;
-                supportStatus.show("Failed to load support log.", "error");
+                supportStatus.show("加载支持日志失败。", "error");
                 return;
             }
             const bundle = result.data;
@@ -152,7 +153,7 @@ export const informationTab: Tab = {
             supportSections.replaceChildren(...renderSections(bundle.Sections));
             copyButtonEl.disabled = !markdown;
             if (bundle.Sections.length === 0) {
-                supportStatus.show("Support log is empty.");
+                supportStatus.show("支持日志为空。");
             } else {
                 supportStatus.clear();
             }
@@ -162,19 +163,19 @@ export const informationTab: Tab = {
 
         // Storage usage — structured list with progress bars.
         const storageContainer = el("section", { className: "tab-readonly-section" });
-        const storageTitle = el("h3", { className: "is-section-heading" }, "Storage Usage");
+        const storageTitle = el("h3", { className: "is-section-heading" }, "存储占用");
         storageTitle.id = "storage-usage-label";
         const storageDesc = el(
             "div",
             { className: "field-description" },
-            "See how much space each library uses.",
+            "查看各媒体库的空间占用。",
         );
         const storageStatusEl = el("div", {
             className: "status-message",
             id: "storage-usage-status",
         });
         const storageStatus = bindStatusMessage(storageStatusEl);
-        storageStatus.show("Loading storage usage…");
+        storageStatus.show("正在加载存储占用…");
         const storageList = el("div", {});
         storageList.setAttribute("aria-labelledby", storageTitle.id);
         storageContainer.append(storageTitle, storageDesc, storageStatusEl, storageList);
@@ -231,16 +232,16 @@ export const informationTab: Tab = {
         }
 
         async function loadStorageUsage(): Promise<void> {
-            storageStatus.show("Loading storage usage…");
+            storageStatus.show("正在加载存储占用…");
             const result = await api.getStorageUsage(signal);
             storageList.replaceChildren();
             if (!result.ok) {
-                storageStatus.show("Failed to load storage usage.", "error");
+                storageStatus.show("加载存储占用失败。", "error");
                 return;
             }
             const libraries = result.data;
             if (libraries.length === 0) {
-                storageStatus.show("Storage usage is empty.");
+                storageStatus.show("暂无存储占用数据。");
                 return;
             }
             const list = el("ul", { className: "storage-list" });
@@ -257,7 +258,7 @@ export const informationTab: Tab = {
                 }
             }
             storageList.append(list);
-            storageStatus.show("Storage usage loaded.");
+            storageStatus.show("存储占用已加载。");
         }
 
         loadStorageUsage().catch(ignoreAbort);

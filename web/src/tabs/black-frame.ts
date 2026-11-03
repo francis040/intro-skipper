@@ -7,7 +7,7 @@ const modernAnalyzer = (): boolean => !legacyAnalyzer();
 
 export const blackFrameTab: Tab = {
     id: "black-frame",
-    label: "Black Frame",
+    label: "黑帧",
     render(container, signal) {
         const form = configForm(signal);
 

@@ -1,4 +1,5 @@
 import type { PluginConfig } from "../config/schema.ts";
+import { serverErrorText } from "./error-text.ts";
 import { isAbortError } from "../lifecycle.ts";
 import type {
     ApiResult,
@@ -35,13 +36,13 @@ async function readErrorMessage(response: Response): Promise<string> {
     try {
         const data: unknown = await response.json();
         if (typeof data === "string" && data.length > 0) {
-            return data;
+            return serverErrorText(data);
         }
         if (typeof data === "object" && data !== null) {
             for (const key of ["title", "detail", "Message"]) {
                 const value = Reflect.get(data, key);
                 if (typeof value === "string" && value.length > 0) {
-                    return value;
+                    return serverErrorText(value);
                 }
             }
         }
@@ -49,7 +50,7 @@ async function readErrorMessage(response: Response): Promise<string> {
         if (isAbortError(err)) throw err;
         // Unparseable body: fall through to the generic message.
     }
-    return "Server returned " + response.status;
+    return "服务器返回状态码 " + response.status;
 }
 
 // Several endpoints answer 200, 202 or 204 with no body at all; those map to
@@ -99,7 +100,7 @@ async function request<T>(url: string, options: RequestOptions = {}): Promise<Ap
         return {
             ok: false,
             status: null,
-            error: err instanceof Error ? err.message : "Network error",
+            error: err instanceof Error ? err.message : "网络错误",
         };
     }
 }
@@ -327,7 +328,7 @@ export async function getSupportBundle(signal?: AbortSignal): Promise<ApiResult<
         result.ok &&
         (typeof result.data?.Markdown !== "string" || !Array.isArray(result.data.Sections))
     ) {
-        return { ok: false, status: result.status, error: "Unexpected support bundle response shape" };
+        return { ok: false, status: result.status, error: "支持包响应格式异常" };
     }
     return result;
 }
@@ -336,7 +337,7 @@ export async function getStorageUsage(signal?: AbortSignal): Promise<ApiResult<L
     const result = await request<SystemStorageInfo>("System/Info/Storage", { signal });
     if (!result.ok) return result;
     if (!Array.isArray(result.data?.Libraries)) {
-        return { ok: false, status: result.status, error: "Unexpected storage response shape" };
+        return { ok: false, status: result.status, error: "存储响应格式异常" };
     }
     return { ok: true, status: result.status, data: result.data.Libraries };
 }
@@ -368,7 +369,7 @@ export function updateSkipDuration(signal?: AbortSignal): Promise<ApiResult<null
 export async function checkPlugins(signal?: AbortSignal): Promise<ApiResult<PluginInfo[]>> {
     const result = await request<PluginInfo[]>("Plugins", { signal });
     if (result.ok && !Array.isArray(result.data)) {
-        return { ok: false, status: result.status, error: "Unexpected plugins response shape" };
+        return { ok: false, status: result.status, error: "插件响应格式异常" };
     }
     return result;
 }

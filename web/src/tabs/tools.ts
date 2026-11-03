@@ -19,19 +19,19 @@ function eraseTarget(value: string): { modes: SegmentType[]; button: string; tim
     return mode
         ? {
               modes: [mode.value],
-              button: `Erase All ${mode.label} Timestamps`,
-              timestamps: `${mode.label.toLowerCase()} timestamps`,
+              button: `清除全部${mode.label}时间戳`,
+              timestamps: `${mode.label.toLowerCase()}时间戳`,
           }
         : {
               modes: MODE_OPTIONS.map((option) => option.value),
-              button: "Erase All Timestamps",
-              timestamps: "timestamps of every type",
+              button: "清除全部时间戳",
+              timestamps: "所有类型的时间戳",
           };
 }
 
 export const toolsTab: Tab = {
     id: "tools",
-    label: "Tools",
+    label: "工具",
 
     render(container) {
         const globalSelectId = "global-timestamp-type";
@@ -39,7 +39,7 @@ export const toolsTab: Tab = {
         const globalSelectLabel = el(
             "label",
             { className: "select-label", for: globalSelectId },
-            "Global Timestamp Type",
+            "全局时间戳类型",
         );
         const globalSelect = el("select", {
             id: globalSelectId,
@@ -48,7 +48,7 @@ export const toolsTab: Tab = {
         for (const mode of MODE_OPTIONS) {
             globalSelect.append(el("option", { value: mode.value }, mode.label));
         }
-        globalSelect.append(el("option", { value: ALL_MODES }, "All Types"));
+        globalSelect.append(el("option", { value: ALL_MODES }, "所有类型"));
         globalSelectGroup.append(globalSelectLabel, globalSelect);
 
         const globalEraseBtn = el(
@@ -64,9 +64,9 @@ export const toolsTab: Tab = {
         globalEraseBtn.addEventListener("click", async () => {
             const target = eraseTarget(globalSelect.value);
             const result = await confirmDialog({
-                title: "Confirm Timestamp Erasure",
-                body: "Are you sure you want to erase all previously discovered " + target.timestamps + "? User segments are kept.",
-                confirmLabel: "Erase",
+                title: "确认清除时间戳",
+                body: "确定要清除之前检测到的全部" + target.timestamps + "吗？用户手动创建的片段将保留。",
+                confirmLabel: "清除",
                 checkboxes: eraseCheckboxes,
             });
             if (!result) return;
@@ -74,23 +74,23 @@ export const toolsTab: Tab = {
             for (const mode of target.modes) {
                 const response = await api.eraseTimestamps(mode, result);
                 if (!response.ok) {
-                    window.Dashboard.alert("Failed to erase " + target.timestamps);
+                    window.Dashboard.alert("清除失败：" + target.timestamps);
                     return;
                 }
             }
-            window.Dashboard.alert("Erased " + target.timestamps);
+            window.Dashboard.alert("已清除" + target.timestamps);
         });
 
         const rebuildBtn = el(
             "button",
             { className: "action-button danger", type: "button" },
-            "Rebuild Local Database",
+            "重建本地数据库",
         );
         rebuildBtn.addEventListener("click", async () => {
             const result = await confirmDialog({
-                title: "Confirm Database Rebuild",
-                body: "Are you sure you want to rebuild the database? This requires a full Jellyfin restart to complete.",
-                confirmLabel: "Rebuild",
+                title: "确认重建数据库",
+                body: "确定要重建数据库吗？需要完全重启 Jellyfin 才能完成。",
+                confirmLabel: "重建",
             });
             if (!result) return;
             let response = await api.rebuildDatabase();
@@ -98,43 +98,43 @@ export const toolsTab: Tab = {
                 // The server refused because the existing database cannot be read
                 // for backup; rebuilding means starting empty.
                 const discard = await confirmDialog({
-                    title: "Database Unreadable",
-                    body: "The existing database could not be read for backup. Rebuilding will discard all stored timestamps and start empty. Continue?",
-                    confirmLabel: "Discard and Rebuild",
+                    title: "无法读取数据库",
+                    body: "无法读取现有数据库以创建备份。重建将丢弃所有已保存的时间戳，并从空数据库开始。是否继续？",
+                    confirmLabel: "丢弃数据并重建",
                 });
                 if (!discard) return;
                 response = await api.rebuildDatabase({ forceCleanOnBackupFailure: true });
             }
             if (!response.ok) {
-                window.Dashboard.alert("Failed to rebuild database");
+                window.Dashboard.alert("重建数据库失败");
                 return;
             }
             window.Dashboard.alert(
-                "Database rebuild initiated. A full Jellyfin restart is required.",
+                "数据库重建已启动，需要完全重启 Jellyfin。",
             );
         });
 
         const resetBtn = el(
             "button",
             { className: "action-button danger", type: "button" },
-            "Reset Settings to Defaults",
+            "恢复所有默认设置",
         );
         resetBtn.addEventListener("click", async () => {
             const result = await confirmDialog({
-                title: "Confirm Settings Reset",
-                body: "Reset every setting on every tab to its default, discarding any unsaved changes? Exclusion lists, library selection, season and show overrides, and the injected skip button CSS are kept.",
-                confirmLabel: "Reset",
+                title: "确认重置设置",
+                body: "将所有页面中的设置恢复为默认值，并丢弃未保存的更改？排除列表、媒体库选择、季和剧集的覆盖设置，以及注入的跳过按钮 CSS 将保留。",
+                confirmLabel: "重置",
             });
             if (!result) return;
             const response = await api.resetConfiguration();
             if (!response.ok) {
-                window.Dashboard.alert("Failed to reset settings");
+                window.Dashboard.alert("重置设置失败");
                 return;
             }
             // The store reports its own load failure, so the reset is
             // confirmed only once the fields show the defaults.
             await configStore.load();
-            window.Dashboard.alert("Settings reset to defaults");
+            window.Dashboard.alert("设置已恢复为默认值");
         });
 
         container.append(
@@ -142,7 +142,7 @@ export const toolsTab: Tab = {
             globalEraseBtn,
             rebuildBtn,
             tabWarning(
-                "Rebuilding the database requires a full Jellyfin restart to complete, not just a dashboard restart.",
+                "重建数据库需要完全重启 Jellyfin，仅刷新管理界面无法完成。",
             ),
             resetBtn,
         );

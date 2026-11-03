@@ -84,7 +84,7 @@ export async function mapWithConcurrency<T, R>(
 }
 
 export function errorText(err: unknown): string {
-    return err instanceof Error ? err.message : "Unknown error";
+    return err instanceof Error ? err.message : "未知错误";
 }
 
 export function pluralize(count: number, singular: string, plural = singular + "s"): string {

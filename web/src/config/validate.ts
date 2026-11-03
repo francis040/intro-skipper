@@ -22,13 +22,13 @@ export function validateSpec(spec: FieldSpec, value: unknown): string | null {
             if (typeof value !== "number") return null;
             const { min, max, step } = spec;
             if (step !== undefined && Number.isInteger(step) && !Number.isInteger(value)) {
-                return "Must be a whole number";
+                return "必须为整数";
             }
             if (min !== undefined && max !== undefined && (value < min || value > max)) {
-                return `Must be between ${min} and ${max}`;
+                return `必须介于 ${min} 至 ${max}`;
             }
-            if (min !== undefined && value < min) return `Must be at least ${min}`;
-            if (max !== undefined && value > max) return `Must be at most ${max}`;
+            if (min !== undefined && value < min) return `不得小于 ${min}`;
+            if (max !== undefined && value > max) return `不得大于 ${max}`;
             return null;
         }
         case "regex": {
@@ -38,7 +38,7 @@ export function validateSpec(spec: FieldSpec, value: unknown): string | null {
                 new RegExp(value);
                 return null;
             } catch {
-                return "Invalid regular expression";
+                return "无效的正则表达式";
             }
         }
         default:
@@ -62,10 +62,10 @@ export function linkedField(key: ConfigKey): NumberKey | null {
 export function validatePair(key: ConfigKey, config: PluginConfig): string | null {
     for (const [minKey, maxKey] of orderedPairs) {
         if (key === minKey) {
-            return config[minKey] >= config[maxKey] ? "Must be less than maximum" : null;
+            return config[minKey] >= config[maxKey] ? "必须小于最大值" : null;
         }
         if (key === maxKey) {
-            return config[minKey] >= config[maxKey] ? "Must be greater than minimum" : null;
+            return config[minKey] >= config[maxKey] ? "必须大于最小值" : null;
         }
     }
     return null;
@@ -83,8 +83,8 @@ export function validateAll(config: PluginConfig): Map<ConfigKey, string> {
     for (const [minKey, maxKey] of orderedPairs) {
         if (errors.has(minKey) || errors.has(maxKey)) continue;
         if (config[minKey] >= config[maxKey]) {
-            errors.set(minKey, "Must be less than maximum");
-            errors.set(maxKey, "Must be greater than minimum");
+            errors.set(minKey, "必须小于最大值");
+            errors.set(maxKey, "必须大于最小值");
         }
     }
 

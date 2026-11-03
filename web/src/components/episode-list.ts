@@ -44,10 +44,10 @@ export function episodeList(signal: AbortSignal): {
     const filterInput = el("input", {
         className: "ts-filter-input",
         type: "text",
-        placeholder: "Filter episodes…",
+        placeholder: "筛选分集…",
         name: "episode-filter",
     });
-    filterInput.setAttribute("aria-label", "Filter episodes by name");
+    filterInput.setAttribute("aria-label", "按名称筛选分集");
     filterInput.setAttribute("autocomplete", "off");
     const countEl = el("span", { className: "ts-episode-count" });
     countEl.setAttribute("aria-live", "polite");
@@ -73,7 +73,7 @@ export function episodeList(signal: AbortSignal): {
         if (!ticks) return "";
         const minutes = Math.round(ticks / 10_000_000 / 60);
         // A no-break space keeps the number and its unit on one line.
-        return minutes + "\u00a0min";
+        return minutes + " 分钟";
     }
 
     let isMovieView = false;
@@ -119,13 +119,13 @@ export function episodeList(signal: AbortSignal): {
 
         if (!result || !result.ok) {
             const errorDiv = el("div", { className: "ts-episode-error" });
-            errorDiv.append(document.createTextNode("Failed to load segments"));
+            errorDiv.append(document.createTextNode("加载片段失败"));
 
-            const retryBtn = el("button", { className: "ts-retry-link", type: "button" }, "Retry");
-            retryBtn.setAttribute("aria-label", "Retry loading segments for " + ep.Name);
+            const retryBtn = el("button", { className: "ts-retry-link", type: "button" }, "重试");
+            retryBtn.setAttribute("aria-label", "重新加载片段：" + ep.Name);
             // Retry only this episode so one failed request does not force a full reload.
             const retry = async () => {
-                retryBtn.textContent = "Loading…";
+                retryBtn.textContent = "正在加载…";
                 // disabled (not pointer-events) so keyboard activation cannot
                 // start a second concurrent retry.
                 retryBtn.disabled = true;
@@ -134,7 +134,7 @@ export function episodeList(signal: AbortSignal): {
                     info.removeChild(errorDiv);
                     attachSegmentUi(ep, header, info, retryResult.data);
                 } else {
-                    retryBtn.textContent = "Retry";
+                    retryBtn.textContent = "重试";
                     retryBtn.disabled = false;
                 }
             };
@@ -164,7 +164,7 @@ export function episodeList(signal: AbortSignal): {
         info.append(pillsRow);
 
         const editorId = "ts-segment-editor-" + ++editorCounter;
-        const editBtn = el("button", { className: "ts-edit-btn", type: "button" }, "Edit");
+        const editBtn = el("button", { className: "ts-edit-btn", type: "button" }, "编辑");
         editBtn.setAttribute("aria-expanded", "false");
         // aria-controls is set once the editor element exists (first toggle);
         // pointing it at a not-yet-created id would be a broken reference.
@@ -206,8 +206,8 @@ export function episodeList(signal: AbortSignal): {
         const toggle = el("input", { className: "ts-episode-disable-toggle", type: "checkbox" });
         const disabled = currentDisabledIds.has(ep.Id);
         toggle.checked = !disabled;
-        toggle.setAttribute("aria-label", "Enable media segments for " + ep.Name);
-        toggle.title = "Turn off to hide this item's detected segments from Jellyfin";
+        toggle.setAttribute("aria-label", "启用媒体片段：" + ep.Name);
+        toggle.title = "关闭后，将在 Jellyfin 中隐藏此项目的已检测片段";
         card.classList.toggle("ts-episode-disabled", disabled);
 
         toggle.addEventListener("change", async () => {
@@ -222,7 +222,7 @@ export function episodeList(signal: AbortSignal): {
                 card.classList.toggle("ts-episode-disabled", nowDisabled);
             } catch {
                 toggle.checked = !toggle.checked;
-                window.Dashboard.alert("Failed to update media-segment setting");
+                window.Dashboard.alert("更新媒体片段设置失败");
             } finally {
                 toggle.disabled = false;
             }
@@ -274,11 +274,11 @@ export function episodeList(signal: AbortSignal): {
         });
 
         if (query && visibleCount === 0) {
-            countEl.textContent = "No matching episodes";
+            countEl.textContent = "没有匹配的分集";
             return;
         }
 
-        countEl.textContent = pluralize(visibleCount, "episode");
+        countEl.textContent = pluralize(visibleCount, "集", "集");
     }
 
     filterInput.addEventListener(
@@ -321,7 +321,7 @@ export function episodeList(signal: AbortSignal): {
             filterInput.value = "";
 
             if (view.episodes.length === 0) {
-                listEl.append(el("div", { className: "ts-status-msg" }, "No episodes found."));
+                listEl.append(el("div", { className: "ts-status-msg" }, "未找到分集。"));
                 countEl.textContent = "";
                 return;
             }
@@ -332,7 +332,7 @@ export function episodeList(signal: AbortSignal): {
                 listEl.append(card);
             }
 
-            countEl.textContent = pluralize(view.episodes.length, "episode");
+            countEl.textContent = pluralize(view.episodes.length, "集", "集");
             statusEl.replaceChildren();
         },
 

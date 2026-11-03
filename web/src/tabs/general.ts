@@ -37,8 +37,8 @@ async function confirmPathExclusion(value: string): Promise<boolean> {
     }
 
     return confirmDashboard(
-        "This path appears to be a filesystem root or drive root. Excluding it can skip a large part of the library.",
-        "Confirm Path Exclusion",
+        "此路径似乎是文件系统根目录或驱动器根目录，排除后可能跳过媒体库中的大量内容。",
+        "确认排除路径",
     );
 }
 
@@ -67,32 +67,32 @@ async function loadStoragePathSuggestions(): Promise<string[]> {
 
 export const generalTab: Tab = {
     id: "general",
-    label: "General",
+    label: "常规",
     render(container, signal) {
         const form = configForm(signal);
 
         const injectSection = el("div", { className: "input-container" });
         injectSection.append(
-            el("h3", { className: "is-section-heading" }, "Inject Skip Button CSS"),
+            el("h3", { className: "is-section-heading" }, "注入跳过按钮 CSS"),
         );
         injectSection.append(
             el(
                 "div",
                 { className: "field-description" },
-                "Inject CSS to load skip button styles into your Jellyfin branding setting using an @import statement.",
+                "通过 @import 语句，将跳过按钮样式注入 Jellyfin 的品牌设置。",
             ),
         );
 
         const statusMessage = createStatusMessage();
 
         injectSection.append(
-            actionButton("Inject CSS", async () => {
-                statusMessage.show("Injecting CSS…");
+            actionButton("注入 CSS", async () => {
+                statusMessage.show("正在注入 CSS…");
                 const response = await injectSkipButtonCss();
                 if (response.ok) {
-                    statusMessage.show("Skip button CSS injected successfully!", "success");
+                    statusMessage.show("跳过按钮 CSS 已成功注入！", "success");
                 } else {
-                    statusMessage.show(`Failed to inject CSS: ${response.error}`, "error");
+                    statusMessage.show(`注入 CSS 失败：${response.error}`, "error");
                 }
             }),
         );
@@ -101,42 +101,42 @@ export const generalTab: Tab = {
         const ftWarning = htmlEl(
             "div",
             { className: "field-warning" },
-            "<strong>File Transformation Plugin Required</strong><br/>" +
-                "This feature requires the File Transformation plugin to work. " +
-                '<a href="https://github.com/IAmParadox27/jellyfin-plugin-file-transformation" target="_blank">Install it here</a>',
+            "<strong>需要 File Transformation 插件</strong><br/>" +
+                "此功能需要安装 File Transformation 插件。" +
+                "<a href=\"https://github.com/IAmParadox27/jellyfin-plugin-file-transformation\" target=\"_blank\">前往安装</a>",
         );
         form.visibleWhen(ftWarning, () => !configStore.get("FileTransformationPluginEnabled"));
 
         const clearExcludedSection = el("div", { className: "input-container" });
         clearExcludedSection.append(
-            el("h3", { className: "is-section-heading" }, "Clear Excluded Timestamps"),
+            el("h3", { className: "is-section-heading" }, "清除已排除媒体的时间戳"),
             el(
                 "div",
                 { className: "field-description" },
-                "Remove timestamp and cache rows for media currently matched by the exclusion lists.",
+                "删除当前匹配排除列表的媒体所对应的时间戳和缓存记录。",
             ),
         );
 
         const clearStatus = createStatusMessage();
         clearExcludedSection.append(
-            actionButton("Clear excluded timestamp data", async () => {
+            actionButton("清除已排除媒体的时间戳数据", async () => {
                 if (configStore.isDirty()) {
                     clearStatus.show(
-                        "Save configuration changes before clearing timestamp data.",
+                        "请先保存配置更改，再清除时间戳数据。",
                         "error",
                     );
                     return;
                 }
 
                 const result = await confirmDialog({
-                    title: "Clear Excluded Timestamps",
-                    body: "Remove timestamp data for media currently matched by the exclusion lists. User segments and included media in the same seasons are kept.",
-                    confirmLabel: "Clear",
+                    title: "清除已排除媒体的时间戳",
+                    body: "删除当前匹配排除列表的媒体的时间戳数据。用户手动创建的片段，以及同季中未被排除的媒体将保留。",
+                    confirmLabel: "清除",
                     checkboxes: { eraseTombstones: eraseCheckboxes.eraseTombstones },
                 });
                 if (!result) return;
 
-                clearStatus.show("Clearing excluded timestamp data…");
+                clearStatus.show("正在清除已排除媒体的时间戳数据…");
                 const response = await clearExcludedTimestamps(result);
                 if (!response.ok) {
                     clearStatus.show(response.error, "error");
@@ -144,7 +144,7 @@ export const generalTab: Tab = {
                 }
 
                 clearStatus.show(
-                    `Cleared ${pluralize(response.data.RemovedSegments, "timestamp row", "timestamp rows")} and ${pluralize(response.data.RemovedCacheEntries, "cache row", "cache rows")} for ${pluralize(response.data.AffectedItems, "excluded item", "excluded items")}.`,
+                    `已清除 ${pluralize(response.data.RemovedSegments, "条时间戳记录", "条时间戳记录")} 和 ${pluralize(response.data.RemovedCacheEntries, "条缓存记录", "条缓存记录")}，涉及 ${pluralize(response.data.AffectedItems, "个已排除项目", "个已排除项目")}。`,
                     "success",
                 );
             }, { danger: true }),
@@ -155,7 +155,7 @@ export const generalTab: Tab = {
             configStore.get("UseFileTransformationPlugin") === true;
 
         container.append(
-            form.checkboxGroup("Analyze for:", [
+            form.checkboxGroup("分析类型：", [
                 "ScanIntroduction",
                 "ScanCredits",
                 "ScanRecap",

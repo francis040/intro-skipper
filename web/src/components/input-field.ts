@@ -183,7 +183,7 @@ function textInput(
         if (spec.placeholder !== undefined) inputAttrs.placeholder = labelText(spec.placeholder);
     } else if (spec.kind === "regex") {
         description =
-            (description ?? "") + " <br/>Leave blank to turn off. Default: <code>" + spec.default + "</code>";
+            (description ?? "") + " <br/>留空可关闭检测。默认值：<code>" + spec.default + "</code>";
     } else if (spec.placeholder) {
         inputAttrs.placeholder = spec.placeholder;
     }

@@ -20,7 +20,7 @@ export function seasonTabs(opts: SeasonTabsOptions): {
 } {
     const container = el("div", { className: "ts-season-bar" });
     container.setAttribute("role", "tablist");
-    container.setAttribute("aria-label", "Seasons");
+    container.setAttribute("aria-label", "季列表");
 
     const instanceId = ++seasonTabsCounter;
     let orderedSeasons: SeasonItem[] = [];

@@ -9,7 +9,7 @@ export function patternField(form: ConfigForm, id: KeyOfKind<"regex">): HTMLElem
     const resetBtn = el(
         "button",
         { className: "action-button reset-button", type: "button" },
-        "Reset to default",
+        "恢复默认值",
     );
     resetBtn.addEventListener("click", () => {
         configStore.set(id, configSchema[id].default);

@@ -8,7 +8,7 @@ test("subtitle override selects contain only enabled and disabled", () => {
     for (const field of subtitleModes) {
         assert.deepEqual(
             overrideSchema[field].options.map((option) => option.label),
-            ["Enabled", "Disabled"],
+            ["已启用", "已禁用"],
         );
     }
 });

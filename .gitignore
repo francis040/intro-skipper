@@ -21,3 +21,8 @@ web/node_modules
 
 # CreditsRunner manifests, labels and results name real media and hardware
 tools/CreditsRunner/**/*.json
+
+# Local validation and release output
+TestResults/
+NuGet.Config
+__pycache__/
