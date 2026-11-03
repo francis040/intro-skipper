@@ -7,6 +7,15 @@
     "owner": "francis040；原作者：Intro Skipper contributors",
     "category": "MoviesAndShows",
     "imageUrl": "https://cdn.jsdelivr.net/gh/intro-skipper/manifest@a434e00edba70493794e25917cc8d3326d5a85c6/images/intro-skipper/logo.png",
-    "versions": []
+    "versions": [
+      {
+        "version": "12.0.6.1",
+        "changelog": "基于官方 12.0.6.0 的简体中文汉化版；非官方、未使用官方签名。保留插件身份、配置与检测逻辑。",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/francis040/intro-skipper/releases/download/zh-CN-v12.0.6.1/intro-skipper-zh-CN-v12.0.6.1.zip",
+        "checksum": "c2eda213f3106280422cd13320cd1bc8",
+        "timestamp": "2026-11-03T02:07:30Z"
+      }
+    ]
   }
 ]
