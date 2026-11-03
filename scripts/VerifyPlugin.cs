@@ -24,8 +24,8 @@ foreach (var file in expected)
     var bytes = reader.ReadBytes(reader.ReadInt32());
     if (!bytes.SequenceEqual(File.ReadAllBytes(Path.Combine(root, "IntroSkipper", "Configuration", file)))) throw new InvalidDataException("Embedded resource mismatch: " + file);
     var text = Encoding.UTF8.GetString(bytes);
-    if (file == "introskipper.js" && (!text.Contains("常规") || !text.Contains("时间戳") || !text.Contains("音轨") || !text.Contains("c83d86bb-a1e0-4c35-a113-e2101cf4ee6b"))) throw new InvalidDataException("Missing localization or plugin identity");
-    if (file == "configPage.html" && !text.Contains("zh-CN")) throw new InvalidDataException("HTML language missing");
+    if (file == "introskipper.js" && (!text.Contains("常规", StringComparison.Ordinal) || !text.Contains("时间戳", StringComparison.Ordinal) || !text.Contains("音轨", StringComparison.Ordinal) || !text.Contains("c83d86bb-a1e0-4c35-a113-e2101cf4ee6b", StringComparison.Ordinal))) throw new InvalidDataException("Missing localization or plugin identity");
+    if (file == "configPage.html" && !text.Contains("zh-CN", StringComparison.Ordinal)) throw new InvalidDataException("HTML language missing");
     Console.WriteLine("Verified embedded resource: " + file);
 }
 Console.WriteLine("Verified assembly/file version: " + args[1]);
